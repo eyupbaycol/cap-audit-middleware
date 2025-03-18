@@ -1,0 +1,28 @@
+{
+  "name": "cap-audit-middleware",
+  "version": "1.0.0",
+  "description": "Audit middleware for SAP CAP applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "sap",
+    "cap",
+    "audit",
+    "middleware",
+    "logging"
+  ],
+  "author": "eyupbaycol",
+  "license": "MIT",
+  "dependencies": {
+    "@sap/cds": ">=5.0.0",
+    "express": "^4.21.2"
+  },
+  "peerDependencies": {
+    "@sap/cds": ">=5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}

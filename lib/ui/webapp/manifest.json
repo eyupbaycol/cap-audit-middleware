@@ -1,0 +1,103 @@
+{
+  "_version": "1.12.0",
+  "sap.app": {
+    "id": "sap.audit",
+    "type": "application",
+    "title": "Audit Logs",
+    "description": "Audit Log Viewer",
+    "applicationVersion": {
+      "version": "1.0.0"
+    },
+    "dataSources": {
+      "auditService": {
+        "uri": "/audit/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "rootView": {
+      "viewName": "sap.audit.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "app"
+    },
+    "dependencies": {
+      "minUI5Version": "1.60.0",
+      "libs": {
+        "sap.ui.core": {},
+        "sap.m": {},
+        "sap.f": {},
+        "sap.ui.layout": {}
+      }
+    },
+    "models": {
+      "": {
+        "dataSource": "auditService",
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true
+        }
+      },
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "sap.audit.i18n.i18n"
+        }
+      }
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "viewPath": "sap.audit.view",
+        "controlId": "app",
+        "controlAggregation": "pages",
+        "async": true
+      },
+      "routes": [
+        {
+          "pattern": "",
+          "name": "main",
+          "target": "main"
+        },
+        {
+          "pattern": "detail/{logId}",
+          "name": "detail",
+          "target": "detail"
+        },
+        {
+          "pattern": "statistics",
+          "name": "statistics",
+          "target": "statistics"
+        }
+      ],
+      "targets": {
+        "main": {
+          "viewName": "Main",
+          "viewLevel": 0
+        },
+        "detail": {
+          "viewName": "Detail",
+          "viewLevel": 1
+        },
+        "statistics": {
+          "viewName": "Statistics",
+          "viewLevel": 1
+        }
+      }
+    }
+  }
+} 
