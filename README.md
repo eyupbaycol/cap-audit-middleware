@@ -1,135 +1,135 @@
 # CAP Audit Middleware
 
-SAP Cloud Application Programming (CAP) uygulamaları için audit log (denetim kaydı) tutmaya yarayan bir middleware kütüphanesi.
+A middleware library for audit logging in SAP Cloud Application Programming (CAP) applications.
 
-## Özellikler
+## Features
 
-- Entity bazlı veya tüm entityler için denetim kaydı tutma
-- CREATE, UPDATE ve DELETE işlemleri için ayrı ayrı yapılandırılabilir loglama
-- Farklı depolama seçenekleri:
-  - Veritabanı depolama (CAP servisi üzerinden)
-  - JSON dosya depolama
-  - Webhook ile harici sistemlere gönderim
-- İşlem öncesi ve sonrası verilerin kaydedilmesi
-- İstenmeyen veya hassas verilerin filtrelenebilmesi
-- Kullanıcı bilgisi çözümleme için özelleştirilebilir
+- Entity-based or global audit logging
+- Configurable logging for CREATE, UPDATE, and DELETE operations
+- Multiple storage options:
+  - Database storage (via CAP service)
+  - JSON file storage
+  - Webhook integration with external systems
+- Tracking of pre-operation and post-operation data
+- Filtering of unwanted or sensitive data
+- Customizable user resolution
 
-## Kurulum
+## Installation
 
 ```bash
 npm install cap-audit-middleware
 ```
 
-## Kullanım
+## Usage
 
-### Temel Kurulum
+### Basic Setup
 
 ```javascript
 const cds = require('@sap/cds');
 const { AuditMiddleware, storage } = require('cap-audit-middleware');
 
 module.exports = async (srv) => {
-  // Denetim middleware'ini yapılandır
+  // Configure the audit middleware
   const auditMiddleware = new AuditMiddleware({
     storage: new storage.DatabaseStorage({
       db: srv.context,
       table: 'AuditLogs'
     }),
-    // İsteğe bağlı: belirli entityler için log tutma (boş bırakılırsa tümü)
+    // Optional: log only specific entities (empty array means all)
     entities: ['Products', 'Orders'],
-    // İsteğe bağlı: belirli işlemler için log tutma
+    // Optional: log only specific operations
     operations: ['CREATE', 'UPDATE', 'DELETE'],
-    // İsteğe bağlı: kullanıcı bilgisi çözümleme
+    // Optional: user resolution
     userResolver: (req) => req.user?.id || 'anonymous',
-    // İsteğe bağlı: request/response verilerini kaydetme
+    // Optional: log request/response payload
     logPayload: true
   });
   
-  // Middleware'i servise bağla
+  // Initialize middleware with the service
   auditMiddleware.initialize(srv);
 };
 ```
 
-### Depolama Seçenekleri
+### Storage Options
 
-#### Veritabanı Depolama
+#### Database Storage
 
-CDS veritabanınızı kullanarak denetim kayıtlarını saklar.
+Stores audit logs using your CDS database.
 
 ```javascript
 const dbStorage = new storage.DatabaseStorage({
-  db: srv,                           // CDS veritabanı servisi
-  table: 'AuditLogs',                // İsteğe bağlı: tablo adı (varsayılan: 'ServiceLogs')
-  autoCreateTable: true              // İsteğe bağlı: tablo yoksa otomatik oluştur (varsayılan: true)
+  db: srv,                           // CDS database service
+  table: 'AuditLogs',                // Optional: table name (default: 'ServiceLogs')
+  autoCreateTable: true              // Optional: create table if it doesn't exist (default: true)
 });
 ```
 
-#### JSON Dosya Depolama
+#### JSON File Storage
 
-Denetim kayıtlarını yerel bir JSON dosyasında saklar.
+Stores audit logs in a local JSON file.
 
 ```javascript
 const fileStorage = new storage.JsonFileStorage({
-  filePath: './logs/audit-logs.json', // Dosya yolu
-  prettyPrint: true,                  // İsteğe bağlı: JSON formatını okunaklı hale getir
-  appendMode: true                    // İsteğe bağlı: Dosyaya ekleme modu (true) veya üzerine yazma (false)
+  filePath: './logs/audit-logs.json', // File path
+  prettyPrint: true,                  // Optional: format JSON for readability
+  appendMode: true                    // Optional: append mode (true) or overwrite (false)
 });
 ```
 
-#### Webhook Depolama
+#### Webhook Storage
 
-Denetim kayıtlarını harici bir API'ye HTTP isteği olarak gönderir.
+Sends audit logs as HTTP requests to an external API.
 
 ```javascript
 const webhookStorage = new storage.WebhookStorage({
-  url: 'https://example.com/audit-webhook', // Webhook URL'i
-  headers: {                                // İsteğe bağlı: HTTP başlıkları
+  url: 'https://example.com/audit-webhook', // Webhook URL
+  headers: {                                // Optional: HTTP headers
     'Content-Type': 'application/json',
     'Authorization': 'Bearer YOUR_API_KEY'
   },
-  timeout: 3000                             // İsteğe bağlı: İstek zaman aşımı (ms)
+  timeout: 3000                             // Optional: request timeout (ms)
 });
 ```
 
-### Gelişmiş Yapılandırma
+### Advanced Configuration
 
-#### İşlem Öncesi Hook
+#### Before Log Hook
 
-Denetim kaydını saklamadan önce veriyi değiştirmek veya zenginleştirmek için:
+To modify or enrich audit data before it's stored:
 
 ```javascript
 const auditMiddleware = new AuditMiddleware({
   storage: myStorage,
-  // ... diğer seçenekler ...
+  // ... other options ...
   beforeLog: async (logEntry, req) => {
-    // Hassas verileri temizle
+    // Clean sensitive data
     if (logEntry.entity === 'Users' && logEntry.data) {
       delete logEntry.data.password;
     }
-    // Ek bilgiler ekle
+    // Add additional information
     logEntry.applicationName = 'MyCapApp';
     logEntry.environment = process.env.NODE_ENV;
   }
 });
 ```
 
-## CDS Model Entegrasyonu
+## CDS Model Integration
 
-index.cds dosyasında tanımlanan AuditLogs aspect'ini kullanabilirsiniz:
+You can use the AuditLogs aspect defined in the index.cds file:
 
 ```cds
 using { sap.cap.auditLogs } from 'cap-audit-middleware';
 
 entity MyAuditLogs : auditLogs.AuditLogs {
-  // Ek özel alanlar ekleyebilirsiniz
+  // Add your custom fields
   timestamp : Timestamp;
   ipAddress : String;
 }
 ```
 
-## Örnek Kullanım Senaryoları
+## Example Use Cases
 
-### Sadece Belli Entityler için Audit Log Tutma
+### Audit Logging for Specific Entities Only
 
 ```javascript
 const auditMiddleware = new AuditMiddleware({
@@ -139,22 +139,22 @@ const auditMiddleware = new AuditMiddleware({
 });
 ```
 
-### Sadece Belli İşlemler için Audit Log Tutma
+### Audit Logging for Specific Operations Only
 
 ```javascript
 const auditMiddleware = new AuditMiddleware({
   storage: myStorage,
-  operations: ['CREATE', 'DELETE'] // Sadece oluşturma ve silme işlemlerini logla
+  operations: ['CREATE', 'DELETE'] // Only log create and delete operations
 });
 ```
 
-### Hassas Verileri Filtreleme
+### Filtering Sensitive Data
 
 ```javascript
 const auditMiddleware = new AuditMiddleware({
   storage: myStorage,
   beforeLog: (logEntry) => {
-    // Kullanıcı bilgilerindeki hassas alanları temizle
+    // Clean sensitive fields from user data
     if (logEntry.entity === 'Users' && logEntry.data) {
       delete logEntry.data.password;
       delete logEntry.data.creditCardNumber;
@@ -163,6 +163,6 @@ const auditMiddleware = new AuditMiddleware({
 });
 ```
 
-## Lisans
+## License
 
 MIT
