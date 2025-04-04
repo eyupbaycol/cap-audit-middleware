@@ -36,7 +36,7 @@ cds.on("bootstrap", async(app) =>  {
       db: srv.context,
       table: 'AuditLogs'
     }),
-    // Optional: log only specific entities (empty array means all)
+    // At least one entity must be specified in entities parameter
     entities: ['ProductService.Products', 'OrderService.Orders'],
     // Optional: log only specific operations
     operations: ['CREATE', 'UPDATE', 'DELETE'],
@@ -82,7 +82,7 @@ Stores audit logs in a local JSON file.
 
 ```javascript
 const fileStorage = new storage.JsonFileStorage({
-  filePath: './logs/audit-logs.json', // File path
+  filePath: './logs', // File path
   prettyPrint: true,                  // Optional: format JSON for readability
   appendMode: true                    // Optional: append mode (true) or overwrite (false)
 });
