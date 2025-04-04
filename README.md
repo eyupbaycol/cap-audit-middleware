@@ -28,7 +28,8 @@ npm install cap-audit-middleware
 const cds = require('@sap/cds');
 const { AuditMiddleware, storage } = require('cap-audit-middleware');
 
-module.exports = async (srv) => {
+//server.js
+cds.on("bootstrap", async(app) =>  {
   // Configure the audit middleware
   const auditMiddleware = new AuditMiddleware({
     storage: new storage.DatabaseStorage({
@@ -36,7 +37,7 @@ module.exports = async (srv) => {
       table: 'AuditLogs'
     }),
     // Optional: log only specific entities (empty array means all)
-    entities: ['Products', 'Orders'],
+    entities: ['ProductService.Products', 'OrderService.Orders'],
     // Optional: log only specific operations
     operations: ['CREATE', 'UPDATE', 'DELETE'],
     // Optional: user resolution
@@ -47,7 +48,7 @@ module.exports = async (srv) => {
   
   // Initialize middleware with the service
   auditMiddleware.initialize(srv);
-};
+});
 ```
 
 ### Storage Options
@@ -62,6 +63,17 @@ const dbStorage = new storage.DatabaseStorage({
   table: 'AuditLogs',                // Optional: table name (default: 'ServiceLogs')
   autoCreateTable: true              // Optional: create table if it doesn't exist (default: true)
 });
+```
+You can use the AuditLogs aspect defined in the index.cds file:
+
+```cds
+using { sap.cap.auditLogs } from 'cap-audit-middleware';
+
+entity MyAuditLogs : auditLogs.AuditLogs {
+  // Add your custom fields
+  timestamp : Timestamp;
+  ipAddress : String;
+}
 ```
 
 #### JSON File Storage
@@ -113,19 +125,7 @@ const auditMiddleware = new AuditMiddleware({
 });
 ```
 
-## CDS Model Integration
 
-You can use the AuditLogs aspect defined in the index.cds file:
-
-```cds
-using { sap.cap.auditLogs } from 'cap-audit-middleware';
-
-entity MyAuditLogs : auditLogs.AuditLogs {
-  // Add your custom fields
-  timestamp : Timestamp;
-  ipAddress : String;
-}
-```
 
 ## Example Use Cases
 
@@ -134,7 +134,7 @@ entity MyAuditLogs : auditLogs.AuditLogs {
 ```javascript
 const auditMiddleware = new AuditMiddleware({
   storage: myStorage,
-  entities: ['Products', 'Orders', 'Customers'],
+  entities: ['ProductService.Products', 'OrderService.Orders', 'CustomerService.Customers'],
   operations: ['CREATE', 'UPDATE', 'DELETE']
 });
 ```
@@ -162,7 +162,3 @@ const auditMiddleware = new AuditMiddleware({
   }
 });
 ```
-
-## License
-
-MIT
