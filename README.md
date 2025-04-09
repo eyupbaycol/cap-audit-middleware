@@ -31,9 +31,13 @@ const { AuditMiddleware, storage } = require('cap-audit-middleware');
 //server.js
 cds.on("bootstrap", async(app) =>  {
   // Configure the audit middleware
+  setupWithDatabaseStorage();
+});
+async function setupWithDatabaseStorage() {
+  const srv = await cds.connect.to('db');
   const auditMiddleware = new AuditMiddleware({
     storage: new storage.DatabaseStorage({
-      db: srv.context,
+      db: srv,
       table: 'AuditLogs'
     }),
     // At least one entity must be specified in entities parameter
@@ -48,7 +52,7 @@ cds.on("bootstrap", async(app) =>  {
   
   // Initialize middleware with the service
   auditMiddleware.initialize(srv);
-});
+}
 ```
 
 ### Storage Options

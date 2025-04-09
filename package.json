@@ -1,8 +1,16 @@
 {
   "name": "cap-audit-middleware",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audit middleware for SAP CAP applications",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eyupbaycol/cap-audit-middleware.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eyupbaycol/cap-audit-middleware/issues"
+  },
+  "homepage": "https://github.com/eyupbaycol/cap-audit-middleware#readme",
   "scripts": {
     "test": "jest"
   },
